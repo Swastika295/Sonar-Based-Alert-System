@@ -1,189 +1,134 @@
 # Sonar-Based Alert System
 
-An Arduino-based sonar alert system that detects nearby objects using an HC-SR04 ultrasonic sensor. The system provides visual and audio alerts using a 16x2 I2C LCD, red/green LEDs, and a buzzer. A servo motor scans the surroundings and stops when an object is detected within the warning distance.
+An Arduino-based ultrasonic object detection and alert system that measures the distance of nearby objects and provides visual and audio warnings using an LCD, servo motor, LEDs, and buzzer.
 
-## Project Overview
+## Features
 
-The system continuously measures the distance between the ultrasonic sensor and nearby objects.
-
-- When the area is clear, the green LED turns ON and the servo scans from 0° to 180°.
-- When an object is detected within 20 cm, the red LED turns ON, the buzzer sounds, the LCD displays a warning, and the servo holds its current position.
-- The LCD displays the system status and measured distance.
-
-## Wiring Diagram
-
-![Sonar-Based Alert System Wiring Diagram](wiring_diagram.png)
+* Real-time distance measurement using the HC-SR04 ultrasonic sensor
+* Servo motor scanning from 0° to 180°
+* 16×2 I2C LCD for displaying system status and distance
+* Green LED indication when no nearby object is detected
+* Red LED and buzzer alerts when an object is detected within 20 cm
+* Simple and beginner-friendly embedded systems project
 
 ## Components Required
 
-- Arduino UNO
-- HC-SR04 Ultrasonic Sensor
-- 16x2 LCD with I2C Module
-- Servo Motor
-- Red LED
-- Green LED
-- 2-Pin Buzzer
-- 220Ω Resistors
-- Breadboard
-- Jumper Wires
-- USB cable / suitable Arduino power supply
+* Arduino UNO
+* HC-SR04 ultrasonic sensor
+* 16×2 LCD with I2C module
+* SG90 servo motor or equivalent
+* Green LED
+* Red LED
+* 2-pin buzzer
+* 220Ω resistors for LEDs
+* Breadboard
+* Jumper wires
+* USB cable
 
-## Pin Configuration
+## Hardware Connections
 
-### HC-SR04 Ultrasonic Sensor
+| Component           | Arduino Connection                  |
+| ------------------- | ----------------------------------- |
+| HC-SR04 VCC         | 5V                                  |
+| HC-SR04 GND         | GND                                 |
+| HC-SR04 TRIG        | Digital pin 9                       |
+| HC-SR04 ECHO        | Digital pin 10                      |
+| Green LED anode     | Digital pin 2 through 220Ω resistor |
+| Green LED cathode   | GND                                 |
+| Red LED anode       | Digital pin 3 through 220Ω resistor |
+| Red LED cathode     | GND                                 |
+| Buzzer positive (+) | Digital pin 4                       |
+| Buzzer negative (-) | GND                                 |
+| Servo signal        | Digital pin 6                       |
+| Servo VCC           | Suitable 5V supply                  |
+| Servo GND           | GND                                 |
+| LCD VCC             | 5V                                  |
+| LCD GND             | GND                                 |
+| LCD SDA             | A4                                  |
+| LCD SCL             | A5                                  |
 
-| HC-SR04 Pin | Arduino UNO |
-|---|---|
-| VCC | 5V |
-| GND | GND |
-| TRIG | D9 |
-| ECHO | D10 |
-
-### 16x2 I2C LCD
-
-| I2C LCD Pin | Arduino UNO |
-|---|---|
-| VCC | 5V |
-| GND | GND |
-| SDA | A4 |
-| SCL | A5 |
-
-The program uses the I2C address `0x27`.
-
-If the LCD backlight turns on but no text appears, the module may use `0x3F` instead.
-
-### Servo Motor
-
-| Servo Wire/Pin | Arduino UNO |
-|---|---|
-| Signal | D6 |
-| VCC | 5V |
-| GND | GND |
-
-### LEDs
-
-**Green LED**
-```text
-Arduino D2 → 220Ω resistor → LED anode (+)
-LED cathode (-) → GND
-```
-
-**Red LED**
-```text
-Arduino D3 → 220Ω resistor → LED anode (+)
-LED cathode (-) → GND
-```
-
-### 2-Pin Buzzer
-
-```text
-Buzzer + → Arduino D4
-Buzzer - → GND
-```
-
-The program uses `tone()` to generate the buzzer alert.
-
-## Complete Pin Summary
-
-| Component | Pin | Arduino UNO |
-|---|---|---|
-| HC-SR04 | TRIG | D9 |
-| HC-SR04 | ECHO | D10 |
-| Green LED | Anode through 220Ω | D2 |
-| Red LED | Anode through 220Ω | D3 |
-| Buzzer | + | D4 |
-| Servo | Signal | D6 |
-| I2C LCD | SDA | A4 |
-| I2C LCD | SCL | A5 |
+**Important:** Connect all circuit grounds together. If the servo causes the Arduino to reset or behave unpredictably, use a suitable separate 5V supply for the servo, with a common ground.
 
 ## Working Principle
 
-1. The HC-SR04 sends an ultrasonic pulse.
-2. The pulse reflects from a nearby object.
-3. Arduino measures the echo time.
-4. Arduino calculates the distance.
-5. The servo scans the surroundings from 0° to 180°.
-6. If the measured distance is greater than 20 cm, the system considers the area clear.
-7. If the measured distance is 20 cm or less, the system enters warning mode.
+1. The HC-SR04 sensor sends ultrasonic waves and measures the time taken for the echo to return.
+2. The Arduino calculates the distance to the detected object.
+3. When the area is clear and the measured distance is greater than 20 cm, the green LED turns ON, the red LED and buzzer remain OFF, and the servo scans between 0° and 180°.
+4. When an object is detected within 20 cm, the green LED turns OFF, the red LED turns ON, and the buzzer sounds.
+5. The LCD displays the warning message and measured distance.
 
-## System Behavior
-
-### Area Clear — Distance > 20 cm
-
-- Green LED: ON
-- Red LED: OFF
-- Buzzer: OFF
-- LCD: Displays `Area is Empty`
-- Servo: Continues scanning
-
-### Object Detected — Distance ≤ 20 cm
-
-- Green LED: OFF
-- Red LED: ON
-- Buzzer: ON
-- LCD: Displays `WARNING!`
-- Servo: Holds its current position
+The detection threshold is set to 20 cm in the Arduino code and can be modified as needed.
 
 ## Software Requirements
 
-- Arduino IDE
-- Arduino `Wire` library
-- `LiquidCrystal_I2C` library
-- `Servo` library
+* [Arduino IDE](https://www.arduino.cc/en/software)
+* `Servo` library
+* `Wire` library
+* `LiquidCrystal_I2C` library
 
-Install the **LiquidCrystal_I2C** library from:
+The `Wire` library is included with the Arduino environment. Install `LiquidCrystal_I2C` through **Arduino IDE → Library Manager** if required.
 
-`Arduino IDE → Sketch → Include Library → Manage Libraries`
+## Getting Started
 
-## Arduino Code
+### 1. Clone the Repository
 
-The main program is located at:
+Clone the project to your local computer:
+
+```bash
+git clone https://github.com/Swastika295/Sonar-Based-Alert-System.git
+```
+
+### 2. Navigate to the Project Directory
+
+```bash
+cd Sonar-Based-Alert-System
+```
+
+### 3. Open the Arduino Sketch
+
+Open the following file in the Arduino IDE:
 
 ```text
 sonar_alert_system/sonar_alert_system.ino
 ```
 
-## Important Notes
+### 4. Connect and Upload
 
-- Connect all component grounds to a common GND.
-- The I2C LCD must have its I2C backpack connected.
-- If the LCD does not display text, check the I2C address and adjust the contrast potentiometer on the I2C module.
-- The 20 cm detection threshold can be changed in the Arduino code.
-- If the servo causes the Arduino to reset, use a suitable external 5V supply for the servo and connect its GND to Arduino GND.
-
-## Features
-
-- Real-time ultrasonic distance measurement
-- Servo-based scanning
-- 16x2 I2C LCD status display
-- Object detection
-- Audible warning using a buzzer
-- Red/green visual status indication
-- Automatic scanning
-
-## Future Improvements
-
-- Radar-style graphical visualization
-- Larger detection range
-- Multiple ultrasonic sensors
-- Bluetooth or Wi-Fi monitoring
-- Mobile notifications
-- Data logging
-- Object tracking
+1. Connect the Arduino UNO to your computer using a USB cable.
+2. Select **Arduino UNO** under Tools → Board.
+3. Select the correct port under Tools → Port.
+4. Install any missing libraries.
+5. Compile and upload the sketch.
 
 ## Project Structure
 
 ```text
 Sonar-Based-Alert-System/
-│
-├── sonar_alert_system/
-│   └── sonar_alert_system.ino
-│
-├── wiring_diagram.png
-│
-└── README.md
+├── README.md
+└── sonar_alert_system/
+    └── sonar_alert_system.ino
 ```
+
+## Applications
+
+* Basic obstacle detection
+* Robotics and embedded systems experiments
+* Ultrasonic sensor demonstrations
+* Arduino learning projects
+
+## Future Improvements
+
+* Add radar-style visualization on a computer.
+* Record detected distances and events.
+* Make the detection threshold configurable.
+* Improve scanning and alert response.
+
+## Author
+
+**Swastika Singh**
+
+GitHub: [Swastika295](https://github.com/Swastika295)
 
 ## License
 
-This project is intended for educational and learning purposes.
+This project is intended for educational and personal learning purposes.
